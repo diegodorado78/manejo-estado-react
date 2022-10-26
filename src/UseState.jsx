@@ -8,17 +8,13 @@ function UseState({ nombre }) {
     value: "",
     error: false,
     loading: false,
+    deleted: false,
+    confirmed: false,
   });
-  // const [value, setValue] = useState("");
-  // const [error, setError] = useState(false);
-  // const [loading, setloading] = useState(false);
 
   useEffect(() => {
     console.log("empezando efecto");
     if (!!state.loading) {
-      // setState({
-      //   error: false,
-      // });
       setTimeout(() => {
         //emula la validación en el backend
         console.log("empezando validacion");
@@ -27,6 +23,7 @@ function UseState({ nombre }) {
             ...state,
             error: false,
             loading: false,
+            confirmed: true,
           });
         } else {
           setState({
@@ -35,6 +32,7 @@ function UseState({ nombre }) {
             loading: false,
           });
         }
+
         console.log("terminando validacion");
       }, 1000);
     }
@@ -42,43 +40,92 @@ function UseState({ nombre }) {
     console.log("terminando efecto");
   }, [state]);
 
-  return (
-    <div>
-      <h2> Eliminar {nombre}</h2>
-      <p>Por favor,escribe el código de seguridad</p>
-      {/* valiacion dentro de la interfaz para comprobar el estado y renderizar */}
-      {state.error && !state.loading && <p>Error: el codigo es incorrecto</p>}
-      {state.loading && <p>Cargando...</p>}
+  //returns condicionales de acuerdo a los estados
+  if (!state.deleted && !state.confirmed) {
+    //render inicial donde no se ha confirmado ni eliminado el codigo
+    return (
+      <div>
+        <h2> Eliminar {nombre}</h2>
+        <p>Por favor,escribe el código de seguridad</p>
+        {/* valiacion dentro de la interfaz para comprobar el estado y renderizar */}
+        {state.error && !state.loading && <p>Error: el codigo es incorrecto</p>}
+        {state.loading && <p>Cargando...</p>}
 
-      <input
-        placeholder="codigo de seguridad"
-        type="text"
-        onChange={(e) => {
-          // setError(false);
-          // setValue(e.target.value);
-          setState({
-            ...state,
-            value: e.target.value,
-          });
-        }}
-      />
-      <p>{state.value}</p>
-      <button
-        onClick={() => {
-          setState({
-            ...state,
-            error: false,
-            loading: true,
-          });
-        }}
-        // setloading(true);
-        // setError(false);
-      >
-        Comprobar
-      </button>
-      {/* <button onClick={() => setError(prevState=>!prevState)}>Comprobar</button> */}
-    </div>
-  );
+        <input
+          placeholder="codigo de seguridad"
+          type="text"
+          onChange={(e) => {
+            // setError(false);
+            // setValue(e.target.value);
+            setState({
+              ...state,
+              value: e.target.value,
+            });
+          }}
+        />
+        <p>{state.value}</p>
+        <button
+          onClick={() => {
+            setState({
+              ...state,
+              error: false,
+              loading: true,
+            });
+          }}
+        >
+          Comprobar
+        </button>
+        {/* <button onClick={() => setError(prevState=>!prevState)}>Comprobar</button> */}
+      </div>
+    );
+  } else if (state.confirmed && !state.deleted) {
+    return (
+      <>
+        <p>¿Estas seguro de eliminar el código? </p>
+        <button
+          onClick={() => {
+            setState({
+              ...state,
+              deleted: true,
+            });
+          }}
+        >
+          {" "}
+          Si
+        </button>
+        <button
+          onClick={() => {
+            setState({
+              ...state,
+              confirmed: false,
+              value: "",
+            });
+          }}
+        >
+          No
+        </button>
+      </>
+    );
+  } else {
+    //confirmed y deleted true
+    return (
+      <>
+        <p>Eliminado con Exito</p>
+        <button
+          onClick={() => {
+            setState({
+              ...state,
+              confirmed: false,
+              deleted: false,
+              value: "",
+            });
+          }}
+        >
+          Volver atras
+        </button>
+      </>
+    );
+  }
 }
 
 export { UseState };
