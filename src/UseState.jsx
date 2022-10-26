@@ -11,7 +11,49 @@ function UseState({ nombre }) {
     deleted: false,
     confirmed: false,
   });
-
+  const onConfirm = () => {
+    //metodo que abstrae la logica y queda util para cada vez que se necesite
+    setState({
+      ...state,
+      error: false,
+      loading: false,
+      confirmed: true,
+    });
+  };
+  const onError = () => {
+    //metodo que abstrae la logica y queda util para cada vez que se necesite
+    setState({
+      ...state,
+      error: true,
+      loading: false,
+    });
+  };
+  const onWrite = (newvalue) => {
+    setState({
+      ...state,
+      value: newvalue,
+    });
+  };
+  const onCheck = () => {
+    setState({
+      ...state,
+      loading: true,
+    });
+  };
+  const onDelete = () => {
+    setState({
+      ...state,
+      deleted: true,
+    });
+  };
+  const onReset = () => {
+    setState({
+      value: "",
+      error: false,
+      loading: false,
+      confirmed: false,
+    });
+  };
   useEffect(() => {
     console.log("empezando efecto");
     if (!!state.loading) {
@@ -19,26 +61,16 @@ function UseState({ nombre }) {
         //emula la validación en el backend
         console.log("empezando validacion");
         if (state.value === SECURITY_CODE) {
-          setState({
-            ...state,
-            error: false,
-            loading: false,
-            confirmed: true,
-          });
+          onConfirm();
         } else {
-          setState({
-            ...state,
-            error: true,
-            loading: false,
-          });
+          onError();
         }
-
         console.log("terminando validacion");
       }, 1000);
     }
 
     console.log("terminando efecto");
-  }, [state]);
+  });
 
   //returns condicionales de acuerdo a los estados
   if (!state.deleted && !state.confirmed) {
@@ -55,22 +87,13 @@ function UseState({ nombre }) {
           placeholder="codigo de seguridad"
           type="text"
           onChange={(e) => {
-            // setError(false);
-            // setValue(e.target.value);
-            setState({
-              ...state,
-              value: e.target.value,
-            });
+            onWrite(e.target.value);
           }}
         />
         <p>{state.value}</p>
         <button
           onClick={() => {
-            setState({
-              ...state,
-              error: false,
-              loading: true,
-            });
+            onCheck();
           }}
         >
           Comprobar
@@ -84,22 +107,14 @@ function UseState({ nombre }) {
         <p>¿Estas seguro de eliminar el código? </p>
         <button
           onClick={() => {
-            setState({
-              ...state,
-              deleted: true,
-            });
+            onDelete();
           }}
         >
-          {" "}
           Si
         </button>
         <button
           onClick={() => {
-            setState({
-              ...state,
-              confirmed: false,
-              value: "",
-            });
+            onReset();
           }}
         >
           No
@@ -113,12 +128,7 @@ function UseState({ nombre }) {
         <p>Eliminado con Exito</p>
         <button
           onClick={() => {
-            setState({
-              ...state,
-              confirmed: false,
-              deleted: false,
-              value: "",
-            });
+            onReset();
           }}
         >
           Volver atras
